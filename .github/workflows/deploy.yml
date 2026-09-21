@@ -11,6 +11,10 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  # Necesario solo para que configure-pages pueda habilitar Pages la
+  # primera vez (enablement: true más abajo); en corridas siguientes no
+  # hace falta, pero no molesta dejarlo.
+  administration: write
 
 concurrency:
   group: pages
@@ -32,6 +36,11 @@ jobs:
       - run: npm run build
 
       - uses: actions/configure-pages@v5
+        with:
+          # Primera vez: el repo todavía no tiene Pages habilitado, así que
+          # dejamos que la action lo cree (requiere el permiso pages:write
+          # de arriba). En corridas siguientes esto es un no-op.
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
