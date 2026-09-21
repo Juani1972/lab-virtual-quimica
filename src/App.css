@@ -198,10 +198,20 @@ main {
   display: flex;
   align-items: flex-end;
   gap: 6px;
+  /* Sin esto, un <select> con texto largo (p. ej. un nombre de indicador)
+     nunca se achica y el botón de ayuda termina empujado fuera de la
+     columna, superponiéndose con el fieldset vecino. */
+  min-width: 0;
 }
 
 .field-with-tip label {
   flex: 1;
+  min-width: 0;
+}
+
+.field-with-tip select {
+  width: 100%;
+  min-width: 0;
 }
 
 .titration-actions {
@@ -217,17 +227,38 @@ main {
   display: inline-block;
 }
 
-.info-tip-trigger {
+/* El botón es el área táctil real: 44x44px (mínimo recomendado para
+   tacto), transparente y sin afectar el layout de texto alrededor. El
+   círculo visible es el span de adentro, que se queda chico.
+   Selector con elemento + clase (en vez de solo `.info-tip-trigger`)
+   para igualar la especificidad de `.controls button` de más arriba y
+   ganarle por orden de aparición; si no, ese estilo azul genérico se
+   filtraba en los InfoTip que viven dentro de un <fieldset>. */
+button.info-tip-trigger {
+  width: 44px;
+  height: 44px;
+  margin: -11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.info-tip-glyph {
   width: 22px;
   height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
   border: 1px solid #94a3b8;
   background: #f8fafc;
   color: #475569;
   font-size: 0.8rem;
   line-height: 1;
-  cursor: pointer;
-  padding: 0;
 }
 
 .info-tip-bubble {

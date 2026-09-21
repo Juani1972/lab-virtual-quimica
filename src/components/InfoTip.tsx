@@ -6,13 +6,18 @@ interface InfoTipProps {
 }
 
 /**
- * Botón "ⓘ" con una explicación breve. Se muestra con hover y con foco por
- * teclado; como un tap en un botón también lo enfoca, esto alcanza para
- * pantallas táctiles sin necesitar además un manejador de click separado
- * (que compite con el evento de foco y termina auto-cancelándose).
+ * Botón "ⓘ" con una explicación breve. Se muestra con hover y con foco
+ * (mouse, teclado o tap). El hover y el foco se rastrean en estados
+ * separados en vez de un solo booleano: en un tap real, el navegador puede
+ * disparar eventos de foco y de mouse sintéticos en cualquier orden, y si
+ * ambos escribieran el mismo booleano uno podía "cancelar" al otro (por
+ * ejemplo, un mouseleave sintético llegando después del focus). Con dos
+ * estados independientes, cada evento solo apaga su propia fuente.
  */
 export function InfoTip({ label, text }: InfoTipProps) {
-  const [visible, setVisible] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const visible = hovered || focused;
   const id = useId();
 
   return (
@@ -23,12 +28,14 @@ export function InfoTip({ label, text }: InfoTipProps) {
         aria-describedby={visible ? id : undefined}
         aria-expanded={visible}
         aria-label={`Ayuda: ${label}`}
-        onMouseEnter={() => setVisible(true)}
-        onMouseLeave={() => setVisible(false)}
-        onFocus={() => setVisible(true)}
-        onBlur={() => setVisible(false)}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
       >
-        ⓘ
+        <span className="info-tip-glyph" aria-hidden="true">
+          ⓘ
+        </span>
       </button>
       {visible && (
         <span role="tooltip" id={id} className="info-tip-bubble">
