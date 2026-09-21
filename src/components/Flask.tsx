@@ -1,16 +1,19 @@
 import { useEffect, useRef } from "react";
-import { indicatorColor } from "../engine/indicator";
+import { indicatorColor, indicatorStateLabel } from "../engine/indicators";
+import type { IndicatorDef } from "../types/chemistry";
 
 interface FlaskProps {
   pH: number;
   fillLevel: number; // 0..1, qué tan lleno se ve el matraz
+  indicator: IndicatorDef;
 }
 
 const WIDTH = 220;
 const HEIGHT = 260;
 
-export function Flask({ pH, fillLevel }: FlaskProps) {
+export function Flask({ pH, fillLevel, indicator }: FlaskProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const stateLabel = indicatorStateLabel(pH, indicator);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -40,7 +43,7 @@ export function Flask({ pH, fillLevel }: FlaskProps) {
 
     // Líquido: llenamos desde abajo según fillLevel
     const liquidTop = baseY - fillLevel * (baseY - neckTopY);
-    ctx.fillStyle = indicatorColor(pH);
+    ctx.fillStyle = indicatorColor(pH, indicator);
     ctx.fillRect(0, liquidTop, WIDTH, baseY - liquidTop);
     ctx.restore();
 
@@ -56,15 +59,20 @@ export function Flask({ pH, fillLevel }: FlaskProps) {
     ctx.strokeStyle = "rgba(255,255,255,0.5)";
     ctx.lineWidth = 4;
     ctx.stroke();
-  }, [pH, fillLevel]);
+  }, [pH, fillLevel, indicator]);
 
   return (
-    <canvas
-      ref={canvasRef}
-      width={WIDTH}
-      height={HEIGHT}
-      role="img"
-      aria-label={`Matraz Erlenmeyer con solución a pH ${pH.toFixed(2)}`}
-    />
+    <div className="flask">
+      <canvas
+        ref={canvasRef}
+        width={WIDTH}
+        height={HEIGHT}
+        role="img"
+        aria-label={`Matraz Erlenmeyer con solución a pH ${pH.toFixed(2)}, color ${stateLabel} (${indicator.name})`}
+      />
+      <p className="flask-indicator-label" aria-hidden="true">
+        {indicator.name}: <strong>{stateLabel}</strong>
+      </p>
+    </div>
   );
 }

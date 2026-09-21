@@ -1,24 +1,24 @@
 import { useMemo, useState } from "react";
+import { INDICATORS } from "../engine/indicators";
 import { calculatePH, equivalenceVolume, generateTitrationCurve } from "../engine/titration";
-import type { TitrationSetup, TitrationState } from "../types/chemistry";
+import type { IndicatorDef, TitrationSetup, TitrationState } from "../types/chemistry";
 
 const DEFAULT_SETUP: TitrationSetup = {
-  acidConcentration: 0.1,
-  acidVolume: 25,
+  type: "acido-debil-base-fuerte",
+  analyteConcentration: 0.1,
+  analyteVolume: 25,
   ka: 1.8e-5, // ácido acético
-  baseConcentration: 0.1,
+  titrantConcentration: 0.1,
 };
 
 export function useTitration(initialSetup: TitrationSetup = DEFAULT_SETUP) {
   const [setup, setSetup] = useState<TitrationSetup>(initialSetup);
   const [volumeAdded, setVolumeAdded] = useState(0);
+  const [indicator, setIndicator] = useState<IndicatorDef>(INDICATORS[0]);
 
   const veq = useMemo(() => equivalenceVolume(setup), [setup]);
   const fullCurve = useMemo(() => generateTitrationCurve(setup), [setup]);
-  const { pH, region } = useMemo(
-    () => calculatePH(setup, volumeAdded),
-    [setup, volumeAdded]
-  );
+  const { pH, region } = useMemo(() => calculatePH(setup, volumeAdded), [setup, volumeAdded]);
 
   const curveSoFar = useMemo(
     () => fullCurve.filter((point) => point.volumeAdded <= volumeAdded),
@@ -49,6 +49,8 @@ export function useTitration(initialSetup: TitrationSetup = DEFAULT_SETUP) {
     state,
     fullCurve,
     maxVolume,
+    indicator,
+    setIndicator,
     setVolumeAdded,
     updateSetup,
     reset,

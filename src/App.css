@@ -116,3 +116,59 @@ main {
 .controls button:hover {
   background: #1d4ed8;
 }
+
+.flask {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.flask-indicator-label {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #475569;
+}
+
+.data-table {
+  padding: 4px 0;
+}
+
+.data-table button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #1e293b;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.data-table table {
+  margin-top: 12px;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.data-table caption {
+  text-align: left;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.data-table th,
+.data-table td {
+  text-align: left;
+  padding: 6px 10px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.data-table th {
+  background: #f1f5f9;
+}
+
+:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+}

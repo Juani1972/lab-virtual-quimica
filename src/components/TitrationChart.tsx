@@ -47,7 +47,14 @@ export function TitrationChart({
   const yTicks = [0, 2, 4, 6, 7, 8, 10, 12, 14];
 
   return (
-    <svg width={WIDTH} height={HEIGHT} role="img" aria-label="Curva de titulación">
+    <svg
+      width={WIDTH}
+      height={HEIGHT}
+      role="img"
+      aria-label={`Curva de titulación, pH ${currentPH.toFixed(2)} con ${currentVolume.toFixed(
+        2
+      )} mL de titulante agregado. Los mismos datos están disponibles como tabla más abajo.`}
+    >
       {/* Grilla y eje Y */}
       {yTicks.map((tick) => (
         <g key={tick}>
