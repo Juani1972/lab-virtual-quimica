@@ -13,8 +13,8 @@ describe("App", () => {
   it("expone el control de tipo de reacción y el de indicador", () => {
     render(<App />);
 
-    expect(screen.getByLabelText(/reacción/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/indicador/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/reacción/i, { selector: "select" })).toBeInTheDocument();
+    expect(screen.getByLabelText(/indicador/i, { selector: "select" })).toBeInTheDocument();
   });
 
   it("incluye la tabla de datos como alternativa accesible a la curva", () => {

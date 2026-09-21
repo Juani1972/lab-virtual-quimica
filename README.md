@@ -23,6 +23,16 @@ Funciona en **PC y tablet** desde el navegador, sin instalaciones.
 - Controles totalmente operables por teclado, con `aria-label`/`aria-valuetext`
   en el matraz y el slider de volumen, y una región `aria-live` que anuncia
   el pH actual.
+- **Tooltips (ⓘ)** con explicaciones breves en los controles y el banco de
+  trabajo, accesibles por mouse, teclado y tacto.
+- **Tutorial de bienvenida** (se abre solo la primera vez, reabrible con
+  "¿Cómo funciona?") y **deshacer/rehacer** del volumen agregado (botones o
+  Ctrl+Z / Ctrl+Shift+Z).
+- **Modo desafío**: predecí si el pH en la equivalencia va a ser ácido,
+  neutro o básico antes de revelar la curva.
+- **Progreso con XP e insignias** (persistido en el navegador): por llegar a
+  la equivalencia, pasar por la región tampón, probar todos los tipos de
+  titulación/indicadores, y acertar una predicción en el modo desafío.
 - Interfaz responsive, pensada para uso táctil.
 
 ## 🛠️ Stack
@@ -84,19 +94,31 @@ indicador.
 ```
 src/
   types/      Tipos compartidos (TitrationSetup, TitrationState, ...)
-  engine/     Cálculo de pH e indicadores (puro, sin UI, con tests)
-  hooks/      useTitration: estado de la simulación
-  components/ Flask, Burette, TitrationChart, DataTable, Controls
+  engine/     Cálculo de pH, indicadores y gamificación (puro, sin UI, con tests)
+  hooks/      useTitration, useUndoableState, useProgress
+  components/ Flask, Burette, TitrationChart, DataTable, Controls, Tutorial,
+              InfoTip, ChallengeMode, ProgressPanel
   test/       Setup compartido de Vitest
 ```
+
+## 🎮 Progreso y modo desafío
+
+`src/engine/gamification.ts` es un motor puro (testeado por separado de la
+UI) que decide cuándo se desbloquea cada insignia y cuánto XP se otorga:
+llegar a la equivalencia, pasar por una región tampón, probar los 3 tipos de
+titulación o los 4 indicadores, y acertar una predicción en el modo desafío.
+El hook `useProgress` persiste ese estado en `localStorage` (con manejo
+defensivo si no está disponible, p. ej. en navegación privada).
 
 ## 🗺️ Próximas fases
 
 - Titulaciones polipróticas (H₃PO₄, H₂CO₃) con múltiples puntos de
   equivalencia.
-- Modo "receta guiada" con pasos y preguntas de comprobación.
+- Modo "receta guiada" con pasos numerados y preguntas de comprobación
+  (más estructurado que el modo desafío actual).
 - Modo "cálculo inverso": dado un pH y un volumen, estimar la concentración
   desconocida.
+- Ranking o desafíos con tiempo (requeriría un backend compartido).
 
 ## 📄 Licencia
 

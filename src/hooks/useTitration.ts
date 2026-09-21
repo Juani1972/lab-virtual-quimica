@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { INDICATORS } from "../engine/indicators";
 import { calculatePH, equivalenceVolume, generateTitrationCurve } from "../engine/titration";
+import { useUndoableState } from "./useUndoableState";
 import type { IndicatorDef, TitrationSetup, TitrationState } from "../types/chemistry";
 
 const DEFAULT_SETUP: TitrationSetup = {
@@ -13,12 +14,22 @@ const DEFAULT_SETUP: TitrationSetup = {
 
 export function useTitration(initialSetup: TitrationSetup = DEFAULT_SETUP) {
   const [setup, setSetup] = useState<TitrationSetup>(initialSetup);
-  const [volumeAdded, setVolumeAdded] = useState(0);
+  const {
+    value: volumeAdded,
+    setLive: setVolumeAdded,
+    commit: commitVolume,
+    resetHistory: resetVolumeHistory,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+  } = useUndoableState(0);
   const [indicator, setIndicator] = useState<IndicatorDef>(INDICATORS[0]);
 
   const veq = useMemo(() => equivalenceVolume(setup), [setup]);
   const fullCurve = useMemo(() => generateTitrationCurve(setup), [setup]);
   const { pH, region } = useMemo(() => calculatePH(setup, volumeAdded), [setup, volumeAdded]);
+  const equivalencePH = useMemo(() => calculatePH(setup, veq).pH, [setup, veq]);
 
   const curveSoFar = useMemo(
     () => fullCurve.filter((point) => point.volumeAdded <= volumeAdded),
@@ -29,11 +40,11 @@ export function useTitration(initialSetup: TitrationSetup = DEFAULT_SETUP) {
 
   function updateSetup(partial: Partial<TitrationSetup>) {
     setSetup((prev) => ({ ...prev, ...partial }));
-    setVolumeAdded(0);
+    resetVolumeHistory(0);
   }
 
   function reset() {
-    setVolumeAdded(0);
+    resetVolumeHistory(0);
   }
 
   const state: TitrationState = {
@@ -49,9 +60,15 @@ export function useTitration(initialSetup: TitrationSetup = DEFAULT_SETUP) {
     state,
     fullCurve,
     maxVolume,
+    equivalencePH,
     indicator,
     setIndicator,
     setVolumeAdded,
+    commitVolume,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
     updateSetup,
     reset,
   };

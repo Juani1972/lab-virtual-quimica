@@ -83,6 +83,19 @@ export function regionLabel(type: TitrationType, region: TitrationRegion): strin
   }
 }
 
+export function regionExplanation(region: TitrationRegion): string {
+  switch (region) {
+    case "antes":
+      return "Todavía no reaccionó titulante: el pH depende solo del analito en el matraz.";
+    case "tampon":
+      return "El analito débil y su especie conjugada conviven en el matraz: el pH cambia lento (efecto tampón).";
+    case "equivalencia":
+      return "Se agregó justo la cantidad estequiométrica de titulante. El pH puede no ser 7 si hay hidrólisis.";
+    case "despues":
+      return "Ya no queda analito: el pH está dominado por el titulante en exceso.";
+  }
+}
+
 export interface RGBColor {
   r: number;
   g: number;

@@ -17,7 +17,10 @@ const weakAcidSetup: TitrationSetup = {
 function renderControls(overrides: Partial<ComponentProps<typeof Controls>> = {}) {
   const onSetupChange = vi.fn();
   const onVolumeChange = vi.fn();
+  const onVolumeCommit = vi.fn();
   const onIndicatorChange = vi.fn();
+  const onUndo = vi.fn();
+  const onRedo = vi.fn();
   const onReset = vi.fn();
 
   render(
@@ -27,15 +30,20 @@ function renderControls(overrides: Partial<ComponentProps<typeof Controls>> = {}
       maxVolume={50}
       region="antes"
       indicator={INDICATORS[0]}
+      canUndo={false}
+      canRedo={false}
       onSetupChange={onSetupChange}
       onVolumeChange={onVolumeChange}
+      onVolumeCommit={onVolumeCommit}
       onIndicatorChange={onIndicatorChange}
+      onUndo={onUndo}
+      onRedo={onRedo}
       onReset={onReset}
       {...overrides}
     />
   );
 
-  return { onSetupChange, onVolumeChange, onIndicatorChange, onReset };
+  return { onSetupChange, onVolumeChange, onVolumeCommit, onIndicatorChange, onUndo, onRedo, onReset };
 }
 
 describe("Controls", () => {
@@ -60,7 +68,10 @@ describe("Controls", () => {
     const user = userEvent.setup();
     const { onSetupChange } = renderControls();
 
-    await user.selectOptions(screen.getByLabelText(/reacción/i), "base-debil-acido-fuerte");
+    await user.selectOptions(
+      screen.getByLabelText(/reacción/i, { selector: "select" }),
+      "base-debil-acido-fuerte"
+    );
 
     expect(onSetupChange).toHaveBeenCalledWith(
       expect.objectContaining({ type: "base-debil-acido-fuerte", ka: undefined })
@@ -72,7 +83,7 @@ describe("Controls", () => {
     const { onIndicatorChange } = renderControls();
 
     const target = INDICATORS.find((item) => item.id === "azul-bromotimol")!;
-    await user.selectOptions(screen.getByLabelText(/indicador/i), target.id);
+    await user.selectOptions(screen.getByLabelText(/indicador/i, { selector: "select" }), target.id);
 
     expect(onIndicatorChange).toHaveBeenCalledWith(target);
   });
@@ -90,5 +101,26 @@ describe("Controls", () => {
 
     await user.click(screen.getByRole("button", { name: /reiniciar bureta/i }));
     expect(onReset).toHaveBeenCalledTimes(1);
+  });
+
+  it("los botones de deshacer/rehacer respetan canUndo/canRedo y disparan sus callbacks", async () => {
+    const user = userEvent.setup();
+    const { onUndo, onRedo } = renderControls({ canUndo: true, canRedo: true });
+
+    const undoButton = screen.getByRole("button", { name: /deshacer último paso/i });
+    const redoButton = screen.getByRole("button", { name: /rehacer paso/i });
+    expect(undoButton).toBeEnabled();
+    expect(redoButton).toBeEnabled();
+
+    await user.click(undoButton);
+    await user.click(redoButton);
+    expect(onUndo).toHaveBeenCalledTimes(1);
+    expect(onRedo).toHaveBeenCalledTimes(1);
+  });
+
+  it("deshacer/rehacer están deshabilitados cuando no hay historial", () => {
+    renderControls({ canUndo: false, canRedo: false });
+    expect(screen.getByRole("button", { name: /deshacer último paso/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /rehacer paso/i })).toBeDisabled();
   });
 });

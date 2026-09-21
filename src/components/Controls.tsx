@@ -1,3 +1,4 @@
+import { InfoTip } from "./InfoTip";
 import { INDICATORS } from "../engine/indicators";
 import {
   TITRATION_TYPE_META,
@@ -12,9 +13,14 @@ interface ControlsProps {
   maxVolume: number;
   region: TitrationRegion;
   indicator: IndicatorDef;
+  canUndo: boolean;
+  canRedo: boolean;
   onSetupChange: (partial: Partial<TitrationSetup>) => void;
   onVolumeChange: (volume: number) => void;
+  onVolumeCommit: (volume: number) => void;
   onIndicatorChange: (indicator: IndicatorDef) => void;
+  onUndo: () => void;
+  onRedo: () => void;
   onReset: () => void;
 }
 
@@ -37,9 +43,14 @@ export function Controls({
   maxVolume,
   region,
   indicator,
+  canUndo,
+  canRedo,
   onSetupChange,
   onVolumeChange,
+  onVolumeCommit,
   onIndicatorChange,
+  onUndo,
+  onRedo,
   onReset,
 }: ControlsProps) {
   const meta = TITRATION_TYPE_META[setup.type];
@@ -57,36 +68,48 @@ export function Controls({
     <div className="controls">
       <fieldset>
         <legend>Tipo de titulación</legend>
-        <label>
-          Reacción
-          <select
-            value={setup.type}
-            onChange={(event) => handleTypeChange(event.target.value as TitrationType)}
-          >
-            {TITRATION_TYPE_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        <div className="field-with-tip">
+          <label>
+            Reacción
+            <select
+              value={setup.type}
+              onChange={(event) => handleTypeChange(event.target.value as TitrationType)}
+            >
+              {TITRATION_TYPE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <InfoTip
+            label="Reacción"
+            text="Define qué hay en el matraz (analito) y qué se agrega desde la bureta (titulante), y cambia cómo se calcula el pH."
+          />
+        </div>
 
-        <label>
-          Indicador
-          <select
-            value={indicator.id}
-            onChange={(event) => {
-              const next = INDICATORS.find((item) => item.id === event.target.value);
-              if (next) onIndicatorChange(next);
-            }}
-          >
-            {INDICATORS.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.name} (viraje {item.transitionLow}–{item.transitionHigh})
-              </option>
-            ))}
-          </select>
-        </label>
+        <div className="field-with-tip">
+          <label>
+            Indicador
+            <select
+              value={indicator.id}
+              onChange={(event) => {
+                const next = INDICATORS.find((item) => item.id === event.target.value);
+                if (next) onIndicatorChange(next);
+              }}
+            >
+              {INDICATORS.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name} (viraje {item.transitionLow}–{item.transitionHigh})
+                </option>
+              ))}
+            </select>
+          </label>
+          <InfoTip
+            label="Indicador"
+            text="Sustancia que cambia de color dentro de un rango de pH específico (la 'zona de viraje'). No afecta el cálculo del pH, solo el color del matraz."
+          />
+        </div>
       </fieldset>
 
       <fieldset>
@@ -175,11 +198,33 @@ export function Controls({
           step={maxVolume / 500 || 0.01}
           value={volumeAdded}
           onChange={(event) => onVolumeChange(Number(event.target.value))}
+          onMouseUp={(event) => onVolumeCommit(Number(event.currentTarget.value))}
+          onTouchEnd={(event) => onVolumeCommit(Number(event.currentTarget.value))}
+          onKeyUp={(event) => onVolumeCommit(Number(event.currentTarget.value))}
+          onBlur={(event) => onVolumeCommit(Number(event.currentTarget.value))}
           aria-valuetext={`${volumeAdded.toFixed(2)} mililitros, ${regionLabel(setup.type, region)}`}
         />
-        <button type="button" onClick={onReset}>
-          Reiniciar bureta
-        </button>
+        <div className="titration-actions">
+          <button type="button" onClick={onReset}>
+            Reiniciar bureta
+          </button>
+          <button
+            type="button"
+            onClick={onUndo}
+            disabled={!canUndo}
+            aria-label="Deshacer último paso de titulación (Ctrl+Z)"
+          >
+            ↶ Deshacer
+          </button>
+          <button
+            type="button"
+            onClick={onRedo}
+            disabled={!canRedo}
+            aria-label="Rehacer paso de titulación (Ctrl+Shift+Z)"
+          >
+            ↷ Rehacer
+          </button>
+        </div>
       </fieldset>
     </div>
   );
