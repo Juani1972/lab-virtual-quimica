@@ -1,5 +1,7 @@
 # 🧪 Laboratorio Virtual de Química
 
+**🌐 Demo online: https://juani1972.github.io/lab-virtual-quimica/**
+
 Laboratorio virtual interactivo para experimentar con química a nivel pedagógico.
 Funciona en **PC y tablet** desde el navegador, sin instalaciones.
 
@@ -52,7 +54,9 @@ npm run build       # typecheck + build de producción
 ```
 
 Un workflow de GitHub Actions (`.github/workflows/ci.yml`) corre lint,
-typecheck, tests y build en cada push/PR a `main`.
+typecheck, tests y build en cada push/PR a `main`. Cuando esa corrida
+termina en verde sobre `main`, `.github/workflows/deploy.yml` publica
+automáticamente el build en GitHub Pages.
 
 ## 🧮 Modelo químico
 
@@ -93,7 +97,6 @@ src/
 - Modo "receta guiada" con pasos y preguntas de comprobación.
 - Modo "cálculo inverso": dado un pH y un volumen, estimar la concentración
   desconocida.
-- Despliegue automático de una demo pública (GitHub Pages).
 
 ## 📄 Licencia
 
