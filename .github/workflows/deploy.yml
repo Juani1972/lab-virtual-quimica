@@ -11,10 +11,6 @@ permissions:
   contents: read
   pages: write
   id-token: write
-  # Necesario solo para que configure-pages pueda habilitar Pages la
-  # primera vez (enablement: true más abajo); en corridas siguientes no
-  # hace falta, pero no molesta dejarlo.
-  administration: write
 
 concurrency:
   group: pages
